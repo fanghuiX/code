@@ -1,3 +1,5 @@
+package leetcode;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -9,10 +11,63 @@ import java.util.Stack;
 public class Main {
 
     public static void main(String[] args) {
-        int[] a = {1,2,2,3,1};
-        System.out.println(findShortestSubArray(a));
+        int[] a = {2,3,5};
+        System.out.println(getSumAbsoluteDifferences(a));
     }
 
+    public static int[] getSumAbsoluteDifferences(int[] nums) {
+        int len = nums.length;
+        int[] result = new int[len];
+        int[] sumL = new int[len];
+        int[] sumR = new int[len];
+        for(int i=0; i<len; i++) {
+            if(i == 0) {
+                sumL[0] = nums[i];
+            } else {
+                sumL[i] = sumL[i-1] + nums[i];
+            }
+        }
+        for(int i=len-1; i>=0; i--) {
+            if(i == len-1) {
+                sumR[len - i -1] = nums[i];
+            } else {
+                sumR[len - i -1] = sumR[len - i -2] + nums[i];
+            }
+        }
+        for(int i=0; i<len; i++) {
+            if(i == 0) {
+                result[i] = sumR[len-i-2] - (len - i -1) * nums[i];
+            } else if(i == len -1) {
+                result[i] = nums[i] * i -sumL[i-1];
+            } else {
+                result[i] = nums[i] * i -sumL[i-1] + sumR[len-i-2] - (len - i -1) * nums[i];
+            }
+        }
+        return result;
+    }
+
+    public static int longestSubarray(int[] nums, int limit) {
+        int result = 0;
+        for(int i=0; i<nums.length; i++) {
+            int flag = 0;
+            int max = 0;
+            int min = Integer.MAX_VALUE;
+            if(i>0 && nums[i] == nums[i-1]) {
+                continue;
+            }
+            for(int j=i; j<nums.length; j++) {
+                max = Math.max(nums[j], max);
+                min = Math.min(nums[j], min);
+                if(Math.abs(nums[i] - nums[j]) <= limit && Math.abs(max - min) <= limit) {
+                    flag++;
+                } else {
+                    break;
+                }
+            }
+            result = Math.max(result, flag);
+        }
+        return result;
+    }
 
     /**
      * 最长有效括号
