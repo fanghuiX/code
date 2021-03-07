@@ -2,17 +2,108 @@ package leetcode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 
+class TreeNode {
+    int val;
+    TreeNode left;
+    TreeNode right;
+    TreeNode() {}
+    TreeNode(int val) { this.val = val; }
+    TreeNode(int val, TreeNode left, TreeNode right) {
+        this.val = val;
+        this.left = left;
+        this.right = right;
+    }
+}
 
 public class Main {
 
+    Set<Integer> set = new TreeSet<Integer>((o1, o2) -> o2.compareTo(o1));
+
     public static void main(String[] args) {
-        int[] a = {2,3,5};
-        System.out.println(getSumAbsoluteDifferences(a));
+        int[] a = {5,7,-24,12,13,2,3,12,5,6,35};
+        System.out.println(lengthOfLIS(a));
+    }
+
+    public int findSecondMinimumValue(TreeNode root) {
+        DFS(root);
+        if(set.size() >= 2) {
+            int flag = 1;
+            for(Integer i : set) {
+                if(flag == 2) {
+                    return i;
+                }
+                flag++;
+            }
+        }
+        return -1;
+    }
+
+    public void DFS(TreeNode node) {
+        if(node.left == null) {
+            return;
+        } else {
+            set.add(node.left.val);
+            DFS(node.left);
+            set.add(node.right.val);
+            DFS(node.right);
+        }
+    }
+
+    public static int lengthOfLIS(int[] nums) {
+        if(nums.length == 0) {
+            return 0;
+        }
+        int result = 0;
+        Stack<Integer> s = null;
+        for(int i=0; i<nums.length; i++) {
+            s = new Stack<>();
+            s.push(nums[i]);
+            for(int j=i+1; j<nums.length; j++) {
+                if(nums[i] == nums[j]) {
+                    continue;
+                }
+                if(nums[j] > s.peek()) {
+                    s.push(nums[j]);
+                } else if(nums[j] < s.peek()) {
+                    int flag = s.pop();
+                    if(!s.empty() && nums[j] > s.peek()) {
+                        s.push(nums[j]);
+                    } else {
+                        s.push(flag);
+                    }
+                }
+            }
+            result = Math.max(s.size(), result);
+        }
+        return result;
+    }
+
+    public static boolean isToeplitzMatrix(int[][] matrix) {
+        for(int i=0; i<matrix[0].length; i++) {
+            int row = 0;
+            int col = i;
+            while(row < matrix.length-1 && col < matrix[0].length-1) {
+                row++;
+                col++;
+                if(matrix[row][col] != matrix[0][i]) {
+                    return false;
+                }
+            }
+        }
+        for(int i=0; i<matrix.length; i++) {
+            int row = i;
+            int col = 0;
+            while(row < matrix.length-1 && col < matrix[0].length-1) {
+                row++;
+                col++;
+                if(matrix[row][col] != matrix[i][0]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public static int[] getSumAbsoluteDifferences(int[] nums) {
