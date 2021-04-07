@@ -35,11 +35,7 @@ public class Main {
         int left = 2;
         for(int i=2; i<len; i++) {
             nums[left] = nums[i];
-            if(nums[left] == nums[left-1] && nums[left] == nums[left-2]) {
-                if(!(nums[left] == nums[left-1] && nums[left] == nums[left-2])) {
-                    left++;
-                }
-            } else {
+            if(!(nums[left] == nums[left-1] && nums[left] == nums[left-2])) {
                 left++;
             }
         }
