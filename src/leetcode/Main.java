@@ -22,8 +22,177 @@ public class Main {
     Set<Integer> set = new TreeSet<Integer>((o1, o2) -> o2.compareTo(o1));
 
     public static void main(String[] args) {
-        int[] a = {5,7,-24,12,13,2,3,12,5,6,35};
-        System.out.println(lengthOfLIS(a));
+        int[] nums1 = {0,0,1,1,1,1,2,3,3};
+        System.out.println(removeDuplicates(nums1));
+    }
+
+
+    public static int removeDuplicates(int[] nums) {
+        int len = nums.length;
+        if(len <= 2) {
+            return len;
+        }
+        int left = 2;
+        for(int i=2; i<len; i++) {
+            nums[left] = nums[i];
+            if(nums[left] == nums[left-1] && nums[left] == nums[left-2]) {
+                if(!(nums[left] == nums[left-1] && nums[left] == nums[left-2])) {
+                    left++;
+                }
+            } else {
+                left++;
+            }
+        }
+        return left;
+    }
+
+
+    public static void merge(int[] nums1, int m, int[] nums2, int n) {
+        int flag = nums1.length - 1;
+        if(m == 0) {
+            nums1 = nums2.clone();
+        }
+        while(m > 0 && n > 0) {
+            if(nums2[n-1] > nums1[m-1]) {
+                nums1[flag] = nums2[n-1];
+                n--;
+            } else {
+                nums1[flag] = nums1[m-1];
+                m--;
+            }
+            flag--;
+        }
+    }
+
+
+    public static int longestCommonSubsequence(String text1, String text2) {
+        int text1Length = text1.length();
+        int text2Length = text2.length();
+        if(text1Length == 0 || text2Length == 0) {
+            return 0;
+        }
+        char[] chars1 = text1.toCharArray();
+        char[] chars2 = text2.toCharArray();
+        int result = 0;
+        int[][] flag = new int[text2Length][text1Length];
+        for(int i=text1Length-1; i>=0; i--) {
+            for(int j=text2Length-1; j>=0; j--) {
+                int cnt = 0;
+                if(chars1[i] == chars2[j]) {
+                    cnt = 1;
+                } else {
+                    cnt = 0;
+                }
+                if(i == text1Length-1 && j == text2Length-1) {
+                    flag[j][i] = cnt;
+                } else if(i != text1Length-1 && j != text2Length-1) {
+                    flag[j][i] = cnt + Math.max(flag[j+1][i], flag[j][i+1]);
+                } else if(i == text1Length - 1) {
+                    flag[j][i] = cnt == 0 ? flag[j+1][i] : cnt;
+                } else if(j == text2Length - 1) {
+                    flag[j][i] = cnt == 0 ? flag[j][i+1] : cnt;
+                }
+                result = Math.max(result, flag[j][i]);
+            }
+        }
+        return result;
+    }
+
+
+
+
+    public static int calculate(String s) {
+        if(s.length() == 1) {
+            return Integer.valueOf(s);
+        }
+        s = s.replaceAll("\\+", " + ");
+        s = s.replaceAll("\\-", " - ");
+        s = s.replaceAll("\\*", " * ");
+        s = s.replaceAll("\\/", " / ");
+        // 转为字符串数组
+        String[] strs = s.split(" ");
+        List<String> list = new ArrayList<>();
+        for(String str : strs) {
+            if(!str.equals("")) {
+                list.add(str);
+            }
+        }
+        // 栈
+        Stack<String> stack = new Stack<>();
+        for(int i=0; i<list.size(); i++) {
+            if(list.get(i).equals("+") || list.get(i).equals("-")) {
+                stack.push(list.get(i));
+            } else if(list.get(i).equals("*") || list.get(i).equals("/")) {
+                int preNum = Integer.valueOf(stack.pop());
+                int lastNum = Integer.valueOf(list.get(i+1));
+                if(list.get(i).equals("*")) {
+                    stack.push(preNum * lastNum + "");
+                } else {
+                    stack.push(preNum / lastNum + "");
+                }
+                i++;
+            } else {
+                stack.push(list.get(i));
+            }
+        }
+        list = new ArrayList<>();
+        while(stack.size() != 0) {
+            list.add(stack.pop());
+        }
+        Collections.reverse(list);
+        int result = 0;
+        for(int i=0; i<list.size(); i++) {
+            if(list.get(i).equals("+")) {
+                stack.push(Integer.valueOf(stack.pop()) + Integer.valueOf(list.get(i+1)) + "");
+                i++;
+            } else if(list.get(i).equals("-")) {
+                stack.push(Integer.valueOf(stack.pop()) - Integer.valueOf(list.get(i+1)) + "");
+                i++;
+            } else {
+                stack.push(list.get(i));
+            }
+        }
+        return Integer.valueOf(stack.pop());
+    }
+
+
+
+    public boolean validPalindrome(String s) {
+        if(s == null) {
+            return false;
+        }
+        if(s.length() <= 2) {
+            return true;
+        }
+        List<Integer> list = isPalindrome(s);
+        if(list.size() == 0) {
+            return true;
+        } else {
+            String removeLeft = s.substring(0, list.get(0)) + s.substring(list.get(0) + 1);
+            String removeRight = s.substring(0, list.get(1)) + s.substring(list.get(1) + 1);
+            if(isPalindrome(removeLeft).size() == 0 || isPalindrome(removeRight).size() == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 记录移动时不匹配的字符的位置
+    private List<Integer> isPalindrome(String s) {
+        List<Integer> list = new ArrayList<>();
+        int i = 0;
+        int j = s.length() - 1;
+        while(i < j) {
+            if(s.charAt(i) == s.charAt(j)) {
+                i++;
+                j--;
+            } else {
+                list.add(i);
+                list.add(j);
+                return list;
+            }
+        }
+        return list;
     }
 
     public int findSecondMinimumValue(TreeNode root) {
