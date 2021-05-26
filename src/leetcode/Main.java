@@ -21,9 +21,241 @@ public class Main {
 
     Set<Integer> set = new TreeSet<Integer>((o1, o2) -> o2.compareTo(o1));
 
+    private static boolean res = false;
+    static int[][] forward = {{0, 1}, {1, 0}, {0 ,-1}, {-1, 0}};
+
     public static void main(String[] args) {
-        int[] nums1 = {0,0,1,1,1,1,2,3,3};
-        System.out.println(removeDuplicates(nums1));
+        int[] arr = {100,-23,-23,404,100,23,23,23,3,404};
+        System.out.println(minJumps(arr));
+    }
+
+
+    static int ress = Integer.MAX_VALUE;
+    public static int minJumps(int[] arr) {
+        if(arr.length == 1) {
+            return 0;
+        }
+        List<Integer> list = new ArrayList<>();
+        list.add(arr[0]);
+        for(int i=1; i<arr.length; i++) {
+            if(arr[i] != arr[i-1]) {
+                list.add(arr[i]);
+            }
+        }
+        Queue<List<Integer>> queue = new LinkedList<>();
+        // 第一个值，下标，第二个值，跳的次数
+        queue.offer(new ArrayList<Integer>(){{add(0); add(0);}});
+        int terminus = list.size() - 1;
+        int[] visited = new int[terminus+1];
+        visited[0] = 1;
+        while(!queue.isEmpty()) {
+            List<Integer> point = queue.poll();
+            int num = point.get(0);
+            int flag = point.get(1);
+            if(num == terminus) {
+                ress = Math.min(flag, ress);
+            } else {
+                if(num != 0 && visited[num - 1] == 0) {
+                    queue.offer(new ArrayList<Integer>(){{add(num-1); add(flag+1);}});
+                    visited[num - 1] = 1;
+                }
+                if(num + 1 <= terminus && visited[num + 1] == 0) {
+                    queue.offer(new ArrayList<Integer>(){{add(num+1); add(flag+1);}});
+                    visited[num + 1] = 1;
+                }
+                for(int i=0; i<terminus+1; i++) {
+                    if(list.get(i) == list.get(num) && i > num && i != num + 1 && visited[i] == 0) {
+                        int p = i;
+                        queue.offer(new ArrayList<Integer>(){{add(p); add(flag+1);}});
+                        visited[i] = 1;
+                    }
+                }
+            }
+        }
+        return ress;
+    }
+
+
+    public static boolean exist(char[][] board, String word) {
+        char first = word.charAt(0);
+        int m = board.length;
+        int n = board[0].length;
+        List<List<Integer>> list = new ArrayList<>();
+        for(int i=0; i<m; i++) {
+            for(int j=0; j<n; j++) {
+                if(board[i][j] == first) {
+                    List<Integer> l = new ArrayList<>();
+                    l.add(i);
+                    l.add(j);
+                    list.add(l);
+                }
+            }
+        }
+        for(int i=0; i<list.size(); i++) {
+            int[][] nums = new int[m][n];
+            dfs(nums, board, word, list.get(i).get(0), list.get(i).get(1), 1);
+        }
+        return res;
+    }
+
+    private static void dfs(int[][] nums, char[][] board, String word, int m, int n, int flag) {
+        if(m < 0 || m >= board.length || n < 0 || n >= board[0].length || flag > word.length()) {
+            return;
+        }
+        if(board[m][n] != word.charAt(flag-1) || nums[m][n] == 1) {
+            nums[m][n] = 0;
+            return;
+        } else {
+            if(flag == word.length()) {
+                res = true;
+            }
+            nums[m][n] = 1;
+        }
+        for(int i=0; i<forward.length; i++) {
+            dfs(nums, board, word, m + forward[i][0], n + forward[i][1], flag + 1);
+        }
+    }
+
+
+
+    public static List<String> topKFrequent(String[] words, int k) {
+        List<String> result = new ArrayList<>();
+        Map<String, Integer> map = new TreeMap<>();
+        for(String s : words) {
+            if(map.containsKey(s)) {
+                map.put(s, map.get(s) + 1);
+            } else {
+                map.put(s, 1);
+            }
+        }
+        //这里将map.entrySet()转换成list
+        List<Map.Entry<String, Integer>> list = new ArrayList<>(map.entrySet());
+        //然后通过比较器来实现排序
+        Collections.sort(list, (Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) -> {
+            if(o1.getValue().equals(o2.getValue())) {
+                return o1.getKey().compareTo(o2.getKey());
+            } else {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+
+        int flag = 0;
+        for(Map.Entry<String, Integer> m : list) {
+            if(flag >= k) {
+                break;
+            }
+            result.add(m.getKey());
+            flag++;
+        }
+        return result;
+    }
+
+    static List<Integer> result = new ArrayList<>();
+    public static List<Integer> spiralOrder(int[][] matrix) {
+        order(matrix, 0, 0, matrix.length - 1, matrix[0].length - 1);
+        return result;
+    }
+
+    private static void order(int[][] matrix, int x1, int y1, int x2, int y2) {
+        if(x1 >= x2 || y1 >= y2) {
+            if(x1 == x2) {
+                for(int i=y1; i<=y2; i++) {
+                    result.add(matrix[x1][i]);
+                }
+            } else {
+                for(int i=x1; i<=x2; i++) {
+                    result.add(matrix[i][y1]);
+                }
+            }
+            return;
+        }
+        int m = x1;
+        int n = y1 + 1;
+        result.add(matrix[x1][y1]);
+        while(!(m == x1 && n == y1)) {
+            result.add(matrix[m][n]);
+            if(m == x1 && n < y2) {
+                n++;
+            } else if(n == y2 && m < x2) {
+                m++;
+            } else if(m == x2 && n > y1) {
+                n--;
+            } else if(n == y1 && m > x1) {
+                m--;
+            }
+        }
+        order(matrix, x1 + 1, y1 + 1, x2 - 1, y2 - 1);
+    }
+
+
+    public static int leastBricks(List<List<Integer>> wall) {
+        Set<Integer> set = new HashSet<>();
+        int maxWidth = 0;
+        for(int i=0; i<wall.size(); i++) {
+            int width = 0;
+            for(int j=0; j<wall.get(i).size(); j++) {
+                if(j == 0) {
+                    wall.get(i).set(j, wall.get(i).get(j));
+                } else {
+                    wall.get(i).set(j, wall.get(i).get(j) + wall.get(i).get(j-1));
+                }
+                set.add(wall.get(i).get(j));
+                width++;
+            }
+            maxWidth = Math.max(maxWidth, width);
+        }
+        int max = 0;
+        for(int o : set) {
+            int flag = 0;
+            if(o == wall.get(0).get(wall.get(0).size()-1)) {
+                continue;
+            }
+            for(int i=0; i<wall.size(); i++) {
+                if(wall.get(i).contains(o)) {
+                    flag++;
+                }
+            }
+            max = Math.max(max, flag);
+        }
+        return wall.size() - max;
+    }
+
+    // 878
+    public static int nthMagicalNumber(int n, int a, int b) {
+        int MOD = 1000000007;
+        if(a > b) {
+            a = a + b;
+            b = a - b;
+            a = a - b;
+        }
+        if(b % a == 0) {
+            return  Integer.valueOf(String.valueOf((long)a * n % MOD));
+        }
+        long[] flag = {a, b};
+        for(int i=1; i<n; i++) {
+            if(flag[0] <= flag[1]) {
+                flag[0] += a;
+            } else {
+                flag[1] += b;
+            }
+            if(flag[0] == flag[1]) {
+                flag[0] += 1;
+            }
+        }
+        return Integer.valueOf(String.valueOf(Math.min(flag[0], flag[1]) % MOD));
+
+//        int x = 1, y = 1;
+//        Long result = Math.min((long)a, (long)b);
+//        for(int i=1; i<n; i++) {
+//            if(result == a * x) {
+//                x++;
+//            }
+//            if(result == b * y) {
+//                y++;
+//            }
+//            result = Math.min((long)a * x, (long)b * y);
+//        }
+//        return Integer.valueOf(String.valueOf(result % 1000000007));
     }
 
 
