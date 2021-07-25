@@ -25,8 +25,164 @@ public class Main {
     static int[][] forward = {{0, 1}, {1, 0}, {0 ,-1}, {-1, 0}};
 
     public static void main(String[] args) {
-        int[] arr = {100,-23,-23,404,100,23,23,23,3,404};
-        System.out.println(minJumps(arr));
+        System.out.println(maximumTime("?0:??"));
+    }
+
+    public static String maximumTime(String time) {
+        char[] c = time.toCharArray();
+        if(c[3] == '?') {
+            c[3] = '5';
+        }
+        if(c[4] == '?') {
+            c[4] = '9';
+        }
+        if(c[0] == '?' && c[1] == '?') {
+            c[0] = '2';
+            c[1] = '3';
+        } else if(c[0] == '?') {
+            if(Integer.valueOf("" + c[1]) > 3) {
+                c[0] = '1';
+            } else {
+                c[0] = '2';
+            }
+        } else if(c[1] == '?') {
+            if(c[0] == '2') {
+                c[1] = '3';
+            } else {
+                c[1] = '9';
+            }
+        }
+        return new String(c);
+    }
+
+    public static int longestWPI(int[] hours) {
+        int res = 0;
+        int total = 0;
+        Map<Integer, Integer> map = new HashMap<>();
+        for(int i = 0; i < hours.length; i++) {
+            if(hours[i] > 8) {
+                hours[i] = 1;
+            } else {
+                hours[i] = -1;
+            }
+            total += hours[i];
+            if(total > 0) {
+                res = Math.max(res, i + 1);
+            } else {
+                res = Math.max(res, i - map.getOrDefault(total - 1, i));
+            }
+            map.put(total, Math.min(map.getOrDefault(total, i), i));
+        }
+        return res;
+    }
+
+    public static int subarraysDivByK(int[] nums, int k) {
+        int total = 0;
+        int res = 0;
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(0, 1);
+        for(int i : nums) {
+            total += i;
+            int flag = 0;
+            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
+                flag = total - entry.getKey();
+                if(flag % k == 0) {
+                    res += map.getOrDefault(entry.getKey(), 0);
+                }
+            }
+            map.put(total, map.getOrDefault(total, 0) + 1);
+        }
+        return res;
+    }
+
+
+    public static int numSubarraysWithSum(int[] nums, int goal) {
+        int res = 0;
+        int total = 0;
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(0, 1);
+        for(int i : nums) {
+            total += i;
+            int flag = total - goal;
+            res += map.getOrDefault(flag, 0);
+            map.put(total, map.getOrDefault(total, 0) + 1);
+        }
+        return res;
+    }
+
+
+    public static int countPairs(int[] deliciousness) {
+        int res = 0;
+        int mod = 100000007;
+        Map<Integer, Integer> map = new HashMap<>();
+        for(int i=0; i<deliciousness.length; i++) {
+            for(Map.Entry<Integer, Integer> entry : map.entrySet()) {
+                int cur = deliciousness[i] + entry.getKey();
+                if(cur > 1) {
+                    int flag = cur & (cur - 1);
+                    if(flag == 0) {
+                        res += entry.getValue() % mod;
+                        res = res % mod;
+                    }
+                }
+            }
+            Map<Integer, Integer> mapTmp = new HashMap<>(map);
+            for(Map.Entry<Integer, Integer> entry : mapTmp.entrySet()) {
+                map.put(deliciousness[i] + entry.getKey(), map.getOrDefault(entry.getKey(), 0) + 1);
+            }
+            map.put(deliciousness[i], map.getOrDefault(deliciousness[i], 0) + 1);
+        }
+        return res;
+    }
+
+    public static boolean checkIfCanBreak(String s1, String s2) {
+        char[] char1 = s1.toCharArray();
+        char[] char2 = s2.toCharArray();
+        Integer[] ints = new Integer[3];
+        Arrays.sort(ints, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer i, Integer j) {
+                return j-i;
+            }
+        });
+        Arrays.sort(ints, (Integer i, Integer j) -> j-i);
+        Arrays.sort(char1);
+        Arrays.sort(char2);
+        boolean s12 = true;
+        for(int i=0; i<char1.length; i++) {
+            if(char1[i] - char2[i] < 0) {
+                s12 = false;
+                break;
+            }
+        }
+        boolean s21 = true;
+        for(int i=0; i<char1.length; i++) {
+            if(char2[i] - char1[i] < 0) {
+                s21 = false;
+                break;
+            }
+        }
+        return (s12 || s21);
+    }
+
+    public static int uniqueLetterString(String s) {
+        String flag;
+        Long count = 0L;
+        Long l = 1000000007L;
+        char[] chars = s.toCharArray();
+        for(int i=0; i<s.length(); i++) {
+            flag = chars[i] + "";
+            count++;
+            for(int j=i+1; j<s.length(); j++) {
+                if(!flag.contains("" + chars[j])) {
+                    flag += chars[j] + "";
+                    count = (count + Long.valueOf(flag.length())) % l;
+                } else {
+                    break;
+                }
+            }
+        }
+        return count.intValue();
     }
 
 
