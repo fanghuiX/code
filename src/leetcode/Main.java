@@ -23,9 +23,125 @@ public class Main {
 
     private static boolean res = false;
     static int[][] forward = {{0, 1}, {1, 0}, {0 ,-1}, {-1, 0}};
+    static int num = 0;
+    static int[][] path = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    static int resu = 0;
+    static int flag = 1;
+    static int mid = 1;
+    static Map<String, Integer> map = new HashMap<>();
+    static List<Integer> result = new ArrayList<>();
+    static List<List<Integer>> iii = new ArrayList<>();
 
     public static void main(String[] args) {
-        System.out.println(maximumTime("?0:??"));
+        int[] nums = {2, 2, 3, 1};
+        System.out.println(thirdMax(nums));
+        iii.add(new ArrayList<Integer>(){{add(result.get(1)); add(2);}});
+    }
+
+    public static int thirdMax(int[] nums) {
+        Set<Integer> set = new HashSet<>();
+        for(int i : nums) {
+            set.add(i);
+        }
+        List<Integer> list = new ArrayList<>(set);
+        Collections.sort(list);
+        if(list.size() < 3) {
+            return list.get(list.size() - 1);
+        }
+        return list.get(list.size() - 3);
+    }
+
+    public static int longestIncreasingPath(int[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+        int[][] visited = new int[m][n];
+        for(int i=0; i<m; i++) {
+            for(int j=0; j<n; j++) {
+                flag = 1;
+                mid = 1;
+                dfs(visited, matrix, i, j, flag);
+                map.put(i + "," + j, mid);
+            }
+        }
+        return resu;
+    }
+
+    public static void dfs(int[][] visited, int[][] matrix, int m, int n, int flag) {
+        resu = Math.max(flag, resu);
+        mid = Math.max(flag, mid);
+        int current = matrix[m][n];
+        for(int i=0; i<4; i++) {
+            int num1 = m + path[i][0];
+            int num2 = n + path[i][1];
+            if(num1 < 0 || num1 >= matrix.length || num2 < 0 || num2 >= matrix[0].length || matrix[num1][num2] <= current || visited[num1][num2] == 1) {
+                continue;
+            }
+            if(map.containsKey(num1 + "," + num1)) {
+                resu = Math.max(flag + map.get(num1 + "," + num2), resu);
+                mid = Math.max(flag + map.get(num1 + "," + num2), mid);
+            } else {
+                visited[num1][num2] = 1;
+                dfs(visited, matrix, num1, num2, flag + 1);
+                visited[num1][num2] = 0;
+            }
+        }
+        return;
+    }
+
+
+    public static int compareVersion(String version1, String version2) {
+        String[] s1 = version1.split("\\.");
+        String[] s2 = version2.split("\\.");
+        int l1 = s1.length;
+        int l2 = s2.length;
+        int len = Math.min(l1, l2);
+        for(int i=0; i<len; i++) {
+            int num1 = Integer.valueOf(s1[i]);
+            int num2 = Integer.valueOf(s2[i]);
+            if(num1 > num2) {
+                return 1;
+            } else if(num2 > num1) {
+                return -1;
+            }
+        }
+        for(int i=len; i<l1; i++) {
+            if(Integer.valueOf(s1[i]) > 0) {
+                return 1;
+            }
+        }
+        for(int i=len; i<l2; i++) {
+            if(Integer.valueOf(s2[i]) > 0) {
+                return -1;
+            }
+        }
+        return 0;
+    }
+
+    public static TreeNode pruneTree(TreeNode root) {
+        dfs(root, root, null);
+        // while(res != 0 && root != null) {
+        //     res = 0;
+        //     dfs(root);
+        // }
+        return root;
+    }
+
+    public static void dfs(TreeNode pre, TreeNode node, Boolean flag) {
+        if(node == null) {
+            return;
+        }
+        if(node.val == 0 && node.left == null && node.right == null) {
+            num++;
+            if(flag) {
+                pre.left = null;
+            } else {
+                pre.right = null;
+            }
+        }
+        if(node != null) {
+            dfs(node, node.left, true);
+            dfs(node, node.right, false);
+        }
     }
 
     public static String maximumTime(String time) {
@@ -306,7 +422,6 @@ public class Main {
         return result;
     }
 
-    static List<Integer> result = new ArrayList<>();
     public static List<Integer> spiralOrder(int[][] matrix) {
         order(matrix, 0, 0, matrix.length - 1, matrix[0].length - 1);
         return result;
