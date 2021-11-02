@@ -20,6 +20,11 @@ public class ConcurrencyTest {
                 @Override
                 public void run() {
                     fh.set(Thread.currentThread().getName() + "_fanghui");
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     System.out.println(Thread.currentThread().getName() + " START!!!!!!   " + fh.get());
                 }
             });

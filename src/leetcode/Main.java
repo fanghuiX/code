@@ -33,9 +33,28 @@ public class Main {
     static List<List<Integer>> iii = new ArrayList<>();
 
     public static void main(String[] args) {
-        int[] nums = {2, 2, 3, 1};
-        System.out.println(thirdMax(nums));
-        iii.add(new ArrayList<Integer>(){{add(result.get(1)); add(2);}});
+        Scanner scanner = new Scanner(System.in);
+        String str = scanner.next();
+        System.out.println(beautySum(str));
+    }
+
+    public static int beautySum(String s) {
+        char[] cs = s.toCharArray();
+        int res = 0;
+        for(int i=0; i<cs.length - 2; i++) {
+            Map<Character, Integer> map = new HashMap<>();
+            int max = 0;
+            for(int j=i; j<cs.length; j++) {
+                int min = Integer.MAX_VALUE;
+                map.put(cs[j], map.getOrDefault(cs[j], 0) + 1);
+                max = Math.max(max, map.get(cs[j]));
+                for(Map.Entry<Character, Integer> entry : map.entrySet()) {
+                    min = Math.min(min, entry.getValue());
+                }
+                res += max - min;
+            }
+        }
+        return res;
     }
 
     public static int thirdMax(int[] nums) {
